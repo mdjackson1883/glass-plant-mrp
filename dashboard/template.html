@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bluegrass Glassworks - Plant Planning Dashboard (Demo)</title>
+<style>
+  :root {
+    --navy:#1d2e4a; --ink:#14202f; --paper:#f6f4ef; --card:#ffffff;
+    --accent:#2c6e8f; --amber:#c07a2d; --red:#b3402f; --green:#3f7a4e;
+    --line:#dcd7cc; --mut:#6b7280;
+  }
+  * { box-sizing:border-box; margin:0; }
+  body { font:14px/1.5 "Segoe UI", system-ui, sans-serif; background:var(--paper); color:var(--ink); }
+  header { background:var(--navy); color:#fff; padding:14px 22px; display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; }
+  header h1 { font-size:19px; font-weight:600; }
+  header .demo { background:var(--amber); color:#fff; font-size:11px; font-weight:700; letter-spacing:.5px; padding:2px 8px; border-radius:10px; }
+  header .stamp { margin-left:auto; font-size:12px; opacity:.8; }
+  nav { background:var(--ink); padding:0 22px; display:flex; gap:4px; }
+  nav button { background:none; border:none; color:#cfd6e0; padding:10px 16px; font-size:13px; cursor:pointer; border-bottom:3px solid transparent; }
+  nav button.on { color:#fff; border-bottom-color:var(--amber); font-weight:600; }
+  main { padding:20px 22px; max-width:1280px; margin:0 auto; }
+  .kpis { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:20px; }
+  .kpi { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:12px 18px; min-width:130px; }
+  .kpi b { display:block; font-size:24px; color:var(--accent); }
+  .kpi.warn b { color:var(--red); }
+  .kpi span { font-size:12px; color:var(--mut); }
+  h2 { font-size:15px; margin:18px 0 8px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:14px 16px; margin-bottom:16px; overflow-x:auto; }
+  table { border-collapse:collapse; width:100%; font-size:12.5px; }
+  th, td { padding:5px 9px; border-bottom:1px solid var(--line); text-align:left; white-space:nowrap; }
+  th { background:#eef1f5; position:sticky; top:0; font-weight:600; }
+  td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
+  td.short { color:var(--red); font-weight:600; }
+  td.ok { color:var(--green); }
+  tr:hover td { background:#f6f8fa; }
+  .pill { display:inline-block; font-size:11px; padding:1px 8px; border-radius:9px; background:#e5ecf2; color:var(--accent); }
+  .pill.bulk { background:#e9f1ea; color:var(--green); }
+  .item-row { cursor:pointer; }
+  .drill { background:#fbfaf7; }
+  .drill td { padding:10px 14px; }
+  .drill h3 { font-size:13px; margin:6px 0; color:var(--navy); }
+  .drill table { width:auto; min-width:480px; margin-bottom:8px; }
+  .sub { color:var(--mut); font-size:12px; }
+  .linehdr td { background:var(--navy); color:#fff; font-weight:600; }
+  .today td { background:#fdf3e4; }
+  footer { text-align:center; color:var(--mut); font-size:12px; padding:18px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Bluegrass Glassworks &mdash; Plant Planning Dashboard</h1>
+  <span class="demo">DEMO / SYNTHETIC DATA</span>
+  <span class="stamp" id="stamp"></span>
+</header>
+<nav>
+  <button id="tab-mrp" class="on" onclick="show('mrp')">Dunnage MRP</button>
+  <button id="tab-sched" onclick="show('sched')">Production Schedule</button>
+  <button id="tab-items" onclick="show('items')">Items &amp; BOM</button>
+</nav>
+<main>
+  <div class="kpis" id="kpis"></div>
+  <div id="view-mrp"></div>
+  <div id="view-sched" style="display:none"></div>
+  <div id="view-items" style="display:none"></div>
+</main>
+<footer>Portfolio demonstration by Maria D. Jackson &middot; SQLite + PowerShell + vanilla JS &middot; all data synthetic</footer>
+<script>
+const DATA = /*__DATA__*/{}/*__END__*/;
+
+function fmt(n){ return n.toLocaleString('en-US'); }
+function show(v){
+  for (const t of ['mrp','sched','items']){
+    document.getElementById('view-'+t).style.display = (t===v)?'':'none';
+    document.getElementById('tab-'+t).classList.toggle('on', t===v);
+  }
+}
+
+// ---- header stamp ----
+document.getElementById('stamp').textContent = 'Data as of ' + DATA.generated;
+
+// ---- KPIs ----
+(function(){
+  const shortTotal = DATA.mrp.reduce((s,r)=>s+r.net,0);
+  const k = [
+    [DATA.items.length,'items'],
+    [DATA.loadSpecs.length,'load specs'],
+    [DATA.bom.length,'BOM lines'],
+    [DATA.runs.length,'scheduled runs'],
+    [fmt(shortTotal),'net shortfall (units)', shortTotal>0]
+  ];
+  document.getElementById('kpis').innerHTML = k.map(x=>
+    `<div class="kpi${x[2]?' warn':''}"><b>${x[0]}</b><span>${x[1]}</span></div>`).join('');
+})();
+
+// ---- MRP weekly pivot ----
+(function(){
+  // roll daily rows up to Monday-start weeks
+  const weeks = {}, comps = {};
+  for (const r of DATA.mrp){
+    const d = new Date(r.day+'T00:00:00');
+    const mon = new Date(d); mon.setDate(d.getDate() - ((d.getDay()+6)%7));
+    const wk = mon.toISOString().slice(0,10);
+    weeks[wk] = 1;
+    (comps[r.comp] = comps[r.comp] || {})[wk] = (comps[r.comp][wk]||{g:0,n:0});
+    comps[r.comp][wk].g += r.gross; comps[r.comp][wk].n += r.net;
+  }
+  const wkList = Object.keys(weeks).sort();
+  const compMeta = {};
+  for (const c of DATA.components) compMeta[c.id] = c;
+
+  let html = '<div class="card"><h2>Net dunnage requirements by week <span class="sub">(red = purchase needed; on-hand already netted, earliest demand first)</span></h2><table><tr><th>Component</th><th>Item #</th><th class="num">On hand</th>';
+  for (const w of wkList) html += `<th class="num">${w.slice(5)}</th>`;
+  html += '<th class="num">Total</th></tr>';
+  for (const cid of Object.keys(comps).sort()){
+    const m = compMeta[cid] || {desc:cid, itemno:'', onhand:0};
+    let tot = 0;
+    let row = `<tr><td>${m.desc}</td><td>${m.itemno}</td><td class="num">${fmt(m.onhand)}</td>`;
+    for (const w of wkList){
+      const cell = comps[cid][w];
+      const n = cell ? cell.n : 0; tot += n;
+      row += `<td class="num${n>0?' short':(cell?' ok':'')}">${cell?fmt(n):''}</td>`;
+    }
+    html += row + `<td class="num${tot>0?' short':''}"><b>${fmt(tot)}</b></td></tr>`;
+  }
+  html += '</table></div>';
+  document.getElementById('view-mrp').innerHTML = html;
+})();
+
+// ---- Schedule ----
+(function(){
+  const today = DATA.generated.slice(0,10);
+  let html = '<div class="card"><h2>Campaign runs by line</h2><table><tr><th>Run</th><th>Item</th><th>Description</th><th>Pack</th><th>Start</th><th>End</th><th class="num">Days</th><th class="num">Speed (bpm)</th><th class="num">Eff.</th><th class="num">Pallets/day</th></tr>';
+  const itemMeta = {}; for (const i of DATA.items) itemMeta[i.no] = i;
+  const byLine = {};
+  for (const r of DATA.runs) (byLine[r.line] = byLine[r.line] || []).push(r);
+  for (const line of Object.keys(byLine).sort()){
+    html += `<tr class="linehdr"><td colspan="10">Line ${line}</td></tr>`;
+    for (const r of byLine[line].sort((a,b)=>a.start.localeCompare(b.start))){
+      const it = itemMeta[r.item] || {};
+      const active = (r.start <= today && today <= r.end) ? ' today' : '';
+      html += `<tr class="${active}"><td>${r.id}</td><td>${r.item}</td><td>${it.desc||''}</td><td><span class="pill ${r.pack==='Bulk'?'bulk':''}">${r.pack}</span></td><td>${r.start}</td><td>${r.end}</td><td class="num">${r.days}</td><td class="num">${r.speed}</td><td class="num">${Math.round(r.eff*100)}%</td><td class="num">${fmt(Math.round(r.ppd))}</td></tr>`;
+    }
+  }
+  html += '</table></div>';
+  document.getElementById('view-sched').innerHTML = html;
+})();
+
+// ---- Items & BOM ----
+(function(){
+  let html = '<div class="card"><h2>Finished-good items <span class="sub">(click a row to expand load specs + dunnage BOM)</span></h2><table><tr><th>Item</th><th>Description</th><th>Customer</th><th>Market</th><th class="num">Capacity</th><th class="num">Wt (oz)</th><th class="num">Specs</th></tr>';
+  for (const it of DATA.items){
+    const specs = DATA.loadSpecs.filter(s=>s.item===it.no);
+    html += `<tr class="item-row" onclick="toggleDrill('${it.no}')"><td><b>${it.no}</b></td><td>${it.desc}</td><td>${it.customer}</td><td><span class="pill">${it.market}</span></td><td class="num">${it.ml} ml</td><td class="num">${it.wt}</td><td class="num">${specs.length}</td></tr>`;
+    html += `<tr class="drill" id="drill-${it.no}" style="display:none"><td colspan="7">`;
+    for (const s of specs){
+      html += `<h3>Load spec ${s.no} &mdash; ${s.pack} &middot; ${s.fp} pallet &middot; ${s.layers} layers &middot; ${fmt(s.gpp)} bottles/pallet</h3>`;
+      const lines = DATA.bom.filter(b=>b.spec===s.no);
+      html += '<table><tr><th>Component</th><th>Category</th><th class="num">Qty / pallet</th></tr>';
+      for (const b of lines) html += `<tr><td>${b.desc}</td><td>${b.cat}</td><td class="num">${b.qty}</td></tr>`;
+      html += '</table>';
+    }
+    html += '</td></tr>';
+  }
+  html += '</table></div>';
+  document.getElementById('view-items').innerHTML = html;
+})();
+
+function toggleDrill(no){
+  const el = document.getElementById('drill-'+no);
+  el.style.display = el.style.display === 'none' ? '' : 'none';
+}
+</script>
+</body>
+</html>
