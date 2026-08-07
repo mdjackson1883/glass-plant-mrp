@@ -7,6 +7,8 @@ Materials Resource Planner at a glass container manufacturing plant.**
 > ("Bluegrass Glassworks"). The architecture, data model, and MRP logic mirror the real
 > system I built and run daily at work — the numbers do not.
 
+**▶ [View the live dashboard](https://mdjackson1883.github.io/glass-plant-mrp/)** — no install needed.
+
 ![Dashboard — net dunnage requirements by week](docs/img/dashboard-mrp.png)
 
 ## The business problem
@@ -43,8 +45,8 @@ flowchart LR
 3. **Zero-dependency dashboard.** A single offline HTML file (vanilla JS, data
    embedded as JSON at build time) with a weekly net-requirements pivot, the machine
    campaign schedule, and per-item BOM drill-downs. No server, no install — it opens
-   on any plant PC. See [dashboard/Dashboard.html](dashboard/Dashboard.html)
-   (download and open in a browser).
+   on any plant PC. [See it live](https://mdjackson1883.github.io/glass-plant-mrp/)
+   or open [dashboard/Dashboard.html](dashboard/Dashboard.html) locally.
 
 ## What the real system does in production
 
