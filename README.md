@@ -69,6 +69,7 @@ Requires Windows PowerShell 5.1+ and `sqlite3.exe`
 .\scripts\Build-Database.ps1           # rebuild bluegrass.db from schema + seed SQL
 .\scripts\Build-MRP.ps1                # explode schedule -> daily net requirements
 .\scripts\Refresh-Dashboard.ps1        # render dashboard\Dashboard.html
+.\scripts\Export-PowerBIData.ps1       # dump every table to powerbi\data\*.csv
 ```
 
 Each script is idempotent — the database is always a pure function of the committed
