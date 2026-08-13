@@ -78,4 +78,5 @@ Back to **Report view** (left edge, bar-chart icon).
 - Numbers way too big/small → the field is probably set to Count instead of
   Sum (or vice versa). Click the field's dropdown inside the visual.
 - Chart ignores the slicer → the tables aren't related; recheck Part 2.
-- Power BI feels slow → close Chrome tabs first; 6 GB RAM is tight but enough.
+- Power BI feels slow → close Chrome tabs first. The machine has 12 GB now,
+  but Power BI wants 2-4 GB of it, so give it room before you start.

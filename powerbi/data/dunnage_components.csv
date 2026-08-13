@@ -1,16 +1,9 @@
-﻿PALLET_WOOD_40x48,"Wood pallet 40x48",pallet,103211
-
+component_id,description,category,item_number
+PALLET_WOOD_40x48,"Wood pallet 40x48",pallet,103211
 PALLET_WOOD_44x56,"Wood pallet 44x56",pallet,103478
-
 TIERSHEET_40x48,"Corrugated tier sheet 40x48",tier_sheet,868355
-
 TIERSHEET_44x56,"Corrugated tier sheet 44x56",tier_sheet,868412
-
 TOPFRAME_WOOD_40x48,"Wood top frame 40x48",top_frame,106590
-
 TOPFRAME_WOOD_44x56,"Wood top frame 44x56",top_frame,106613
-
 HOOD_PLASTIC_40x48,"Plastic hood 40x48",hood,849102
-
 HOOD_PLASTIC_44x56,"Plastic hood 44x56",hood,849117
-

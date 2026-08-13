@@ -1,32 +1,17 @@
-﻿41010,"355ml Beverage Long-Neck - Flint",5,355,11.1,Flint
-
+item_no,description,customer_id,capacity_ml,weight_oz,color
+41010,"355ml Beverage Long-Neck - Flint",5,355,11.1,Flint
 41147,"355ml Juice Round - Amber",5,355,11.4,Amber
-
 41275,"350ml Sauce Round - Flint",4,350,12.5,Flint
-
 41439,"355ml Juice Round - Flint",5,355,10.8,Flint
-
 41584,"355ml Juice Round - Amber",5,355,11.0,Amber
-
 41708,"355ml Juice Round - Flint",5,355,11.7,Flint
-
 41837,"473ml Beverage Long-Neck - Green",5,473,16.8,Green
-
 41963,"375ml Spirits Round - Amber",1,375,13.6,Amber
-
 42097,"750ml Decanter Square - Amber",2,750,18.8,Amber
-
 42258,"240ml Mason Wide-Mouth - Flint",4,240,10.4,Flint
-
 42398,"750ml Spirits Round - Flint",2,750,18.1,Flint
-
 42527,"375ml Whiskey Flask - Amber",1,375,12.7,Amber
-
 42646,"950ml Sauce Round - Flint",3,950,21.1,Flint
-
 42796,"950ml Sauce Round - Green",4,950,26.4,Green
-
 42949,"350ml Sauce Round - Flint",4,350,12.1,Flint
-
 43084,"350ml Mason Wide-Mouth - Green",4,350,12.8,Green
-
